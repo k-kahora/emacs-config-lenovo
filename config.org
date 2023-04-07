@@ -12,9 +12,15 @@
 
 #+begin_src emacs-lisp :tangle yes
 
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
+	(menu-bar-mode -1)
+	(tool-bar-mode -1)
+	(scroll-bar-mode -1)
+
+    (setq-default left-margin-width 2 right-margin-width 1)
+      ;; For a particular buffer
+      ;; (set-window-margins (selected-window) 3 1)
+  (set-frame-parameter (selected-frame) 'alpha '(95 . 50))
+   (add-to-list 'default-frame-alist '(alpha . (60 . 50)))
 
 #+end_src
 * Shell Commands
@@ -39,28 +45,25 @@ Supress native comp warnings
 * Resume
 
 #+begin_src emacs-lisp :tangle no
-		(use-package ox-moderncv
-		  :straight nil
-		  :load-path "./org-cv/"
-		  :init (require 'ox-moderncv))
 
-		  (defun mk/makeresume ()
+  (use-package ox-moderncv
 
-		  "This export's the resume"
+    :straight nil
+    :load-path "./org-cv/"
+    :init (require 'ox-moderncv))
+
+  (defun mk/makeresume ()
+
+    "This export's the resume"
     (interactive)
-		  (org-export-to-file 'moderncv "resume.tex")
-  (org-latex-compile "resume.tex")
+    (org-export-to-file 'moderncv "resume.tex")
+    (org-latex-compile "resume.tex"))
 
-		  )
-  
 #+end_src 
 
 * Straight boot
 
 #+begin_src emacs-lisp :tangle yes
-
-
-
   (defvar bootstrap-version)
   (let ((bootstrap-file
 	(expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -91,6 +94,64 @@ Supress native comp warnings
   (setq straight-use-package-by-default t)
 
 #+end_src 
+* Org
+Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][org-agenda-method]] 
+#+begin_src emacs-lisp :tangle yes
+
+(use-package org :straight (:type built-in)
+ :bind ((:map org-agenda-key-map
+
+		 ("k" . org-agenda-previous-item)
+		 ("j" . org-agenda-next-item)
+
+		 ("L" . org-agenda-do-date-later)
+		 ("H" . org-agenda-do-date-later))
+	 (:map org-mode-map
+	  ("H" . 'org-timestamp-down-day)
+	  ("I" . 'org-timestamp-up-day)))
+ 
+	:config 
+
+	 (setq org-agenda-files '("~/Sync/agenda/"))
+	 (setq org-log-done 'time))
+
+
+
+#+end_src
+
+#+RESULTS:
+: t
+ 
+
+** Habits
+- =t= Cycle the TODO state of a current item
+- =,= Apply a specific priority
+- =+= and =-= to increase or decrease a priority
+- =C-h= and =C-l= to Shift the date forward or backward
+- =s= Save all agenda buffers
+- =g= rebuild agenda view (refresh)
+
+
+[[http://orgmode.org/manual/Tracking-your-habits.html][Org habits documentation]]
+
+#+begin_src emacs-lisp :tangle yes
+
+
+
+#+end_src
+
+#+RESULTS:
+: air-pop-to-org-agenda
+
+** Org-roam
+
+#+begin_src emacs-lisp :tangle yes
+    (use-package org-roam
+  :straight t
+    )
+#+end_src
+
+
 * TODO Counsel
 
 Not in use right now
@@ -275,6 +336,12 @@ Prot makes damn good themes
     :config (setq vterm-toggle-reset-window-configration-after-exit t))
 
 #+end_src
+* Org mode
+
+#+begin_src emacs-lisp :tangle yes
+#+end_src
+
+
 * Evil mode and general keybindig soulutions
 evil mode
 
@@ -369,6 +436,7 @@ evil mode
 
 
        ;; could get annoying with vim escape
+       (global-set-key (kbd "C-u" ) 'evil-scroll-up)
        (global-set-key (kbd "<escape>" ) 'keyboard-escape-quit)
        (global-set-key (kbd "<escape>" ) 'keyboard-escape-quit)
 
@@ -380,6 +448,9 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
 #+begin_src emacs-lisp :tangle yes
 
+
+
+  (global-set-key (kbd "C-S-n") 'other-window)
 
       ;; to do make f P for private config
     (defun delete-cur-file ()
@@ -410,30 +481,40 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
     ;; Like C-M-j find a simalar binding for buffer switcing it is simply to good
 
     ;; This is for project related commands
+  ;; TODO Eldoc buffer bind this
       (mk/leader-keys
 	"p" '(:ignore t :which-key "project based cmd's" )
-	"pr" '(projectile-ripgrep :which-key "project rip-grep" )
+	"pg" '(projectile-ripgrep :which-key "project rip-grep" )
+	"pe" '(projectile-switch-project :which-key "projectile swith project's" )
 	"pj" '(projectile-run-project :which-key "project run" )
-	"p&" '(async-shell-command :which-key "async shell commands" ))
+	"p." '(projectile-find-file :which-key "Find file in project" )
+	"p&" '(async-shell-command :which-key "async shell commands" )
+	"pr" '(projectile-run-project :which-key "Run project" )
+	"p," '(projectile-switch-to-buffer :which-key "Switch to buffer in project" ))
 
-  ;; magit
+  ;; Org mode 
+      (mk/leader-keys
+	"c" '(:ignore t :which-key "Org mode global commands" )
+	"cd" '(air-pop-to-org-agenda :which-key "org agenda all" )
+	"ca" '(org-agenda :which-key "org agenda" ))
+
       (mk/leader-keys
 	"g" '(:ignore t :which-key "project based cmd's" )
-	"go" '(magit :which-key "magit" )
 	"gc" '(magit-clone :which-key "magit clone" ))
       ;; Opener's 
 
       (mk/leader-keys
 	"o" '(:ignore t :which-key "launch programs" )
 	"of" '(mk/launch-firefox  :which-key "firefox" )
+	"og" '(magit :which-key "Open magit" )
 	"ot" '(vterm-toggle :which-key "vterm popper")
 	"oe" '(mk/launch-epiphany :which-key "epiphany" ))
 
       (mk/leader-keys
 	"b" '(:ignore t :which-key "buffer managment" )
 	"bi" '(insert-buffer :which-key "insert buffer" )
-	"bq" '(insert-buffer :which-key "kill buffer" )
-	"be" '(switch-to-buffer :which-key "switch buffers" ))
+	"bq" '(kill-buffer :which-key "kill buffer" )
+	"bi" '(ibuffer :which-key "ibuffer" ))
 
       (mk/leader-keys
 	"e" '(:ignore t :which-key "elsip evaluations" )
@@ -449,6 +530,9 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	"l" '(:ignore t :which-key "Latex" )
 	"lt" '(org-latex-preview :which-key "ln line latex" )
 	"ls" '(org-export-dispatch :which-key "ln line latex" ))
+
+
+
 #+end_src
 * Hydra
 
@@ -609,9 +693,11 @@ Adds the metadata you see at the side of the completions
       :custom (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
       :bind (("C-x g" . magit)))
 
-    (use-package magit-todos
-      :straight t
-  :init (magit-todos-mode))
+  ;; this causes serious lag if you do not ignore the venv directory for python
+
+  ;;   (use-package magit-todos
+  ;;     :straight t
+  ;; :init (magit-todos-mode))
 
 #+end_src
 ** TODO Magit mode hook
@@ -1064,11 +1150,11 @@ This is font size
 
 * ORG roam
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :tangle yes
 (use-package org-roam
-  :straight t)
+  :straight nil
   :custom
-  (org-roam-directory (file-truename "/Notes/Roam"))
+  (org-roam-directory (file-truename "~/Notes/Roam"))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
@@ -1376,12 +1462,17 @@ Mandaroy
 
 * Rustic
 
+
+** TODO [[https://rust-analyzer.github.io/manual.html#assists-code-actions][code actions to take a look at some point]]
+
+** =C-c C-c= is not the best feeling binding I do not like double tapping maybe somethnig with shift involved =C-S-c=
+
 #+begin_src emacs-lisp :tangle yes
 (use-package rustic
   :straight t
   :bind (:map rustic-mode-map
-              ("C-M-s-e m" . lsp-ui-imenu)
-              ("C-M-s-e ?" . lsp-find-references)
+              ("C-S-e" . lsp-ui-imenu)
+              ("C-c C-c ?" . lsp-find-references)
               ("C-c C-c l" . flycheck-list-errors)
               ("C-c C-c a" . lsp-execute-code-action)
               ("C-c C-c r" . lsp-rename)
@@ -1408,11 +1499,24 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
 
 #+begin_src emacs-lisp :tangle yes
 
-    (use-package exec-path-from-shell
-	:straight t)
-  ;; Do this when I have a daemon running aka emacs server
-  ;; (when (daemonp)
-    ;; (exec-path-from-shell-initialize))
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+      (use-package exec-path-from-shell
+	  :straight t)
+    ;; Do this when I have a daemon running aka emacs server
+    (when (daemonp)
+      (exec-path-from-shell-initialize))
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+#+end_src
+
+* Yas snippet
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package yasnippet
+    :straight t
+    :config
+    (yas-reload-all)
+    (add-hook 'prog-mode-hook 'yas-minor-mode)
+    (add-hook 'text-mode-hook 'yas-minor-mode)
+    (yas-global-mode 1))
+  
 #+end_src

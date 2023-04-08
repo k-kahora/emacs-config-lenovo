@@ -8,6 +8,14 @@
  setxkbmap -option ctrl:nocaps
   xcape -e 'Control_L=Escape' -t 175
 
+* File register
+
+#+begin_src emacs-lisp :tangle yes
+
+  (set-register ?c '(file . "/home/malcolm/.emacs.d/config.org"))
+  (set-register ?p '(file . "/home/malcolm/Projects"))
+
+#+end_src
 * Remove excess heading garbage
 
 #+begin_src emacs-lisp :tangle yes
@@ -448,8 +456,6 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
 #+begin_src emacs-lisp :tangle yes
 
-
-
   (global-set-key (kbd "C-S-n") 'other-window)
 
       ;; to do make f P for private config
@@ -493,6 +499,11 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	"p," '(projectile-switch-to-buffer :which-key "Switch to buffer in project" ))
 
   ;; Org mode 
+
+      (mk/leader-keys
+	"r" '(:ignore t :which-key "Registers" )
+	"rj" '(jump-to-register :which-key "Jump to register" ))
+
       (mk/leader-keys
 	"c" '(:ignore t :which-key "Org mode global commands" )
 	"cd" '(air-pop-to-org-agenda :which-key "org agenda all" )
@@ -511,10 +522,10 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	"oe" '(mk/launch-epiphany :which-key "epiphany" ))
 
       (mk/leader-keys
-	"b" '(:ignore t :which-key "buffer managment" )
-	"bi" '(insert-buffer :which-key "insert buffer" )
-	"bq" '(kill-buffer :which-key "kill buffer" )
-	"bi" '(ibuffer :which-key "ibuffer" ))
+	"u" '(:ignore t :which-key "buffer managment" )
+	"ui" '(insert-buffer :which-key "insert buffer" )
+	"uk" '(kill-buffer :which-key "kill buffer" )
+	"ui" '(ibuffer :which-key "ibuffer" ))
 
       (mk/leader-keys
 	"e" '(:ignore t :which-key "elsip evaluations" )

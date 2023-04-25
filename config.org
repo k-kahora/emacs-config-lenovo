@@ -12,8 +12,12 @@
 
 #+begin_src emacs-lisp :tangle yes
 
-  (set-register ?c '(file . "/home/malcolm/.emacs.d/config.org"))
+  (set-register ?i '(file . "/home/malcolm/.emacs.d/config.org"))
   (set-register ?p '(file . "/home/malcolm/Projects"))
+  (set-register ?c '(file . "/home/malcolm/clones"))
+  (set-register ?s '(file . "/home/malcolm/Pictures/screenshots"))
+  ;; Temorary todo list for <2023-04-09 Sun>
+  (set-register ?t '(file . "/home/malcolm/notes/todo.org"))
 
 #+end_src
 * Remove excess heading garbage
@@ -480,7 +484,6 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	"ns" '(split-window-below :which-key "horizontal-split" )
 	"nk" '(delete-window :which-key "remove window from view")
     ;; C-n o is good for EXWM
-	"nh" '(other-window :which-key "switch windows")
 	"ne" '(delete-other-windows :which-key "remove all windows but current"))
 
       ;; THis is for buffer management
@@ -555,10 +558,10 @@ For quick repetitive actions
 
     (defhydra hydra-text-scale (:timeout 4)
       "scale text"
-      ("h" text-scale-increase "in")
-      ("n" text-scale-decrease "out")
+      ("s" text-scale-increase "in")
+      ("t" text-scale-decrease "out")
       ("r" text-scale-set "Equalize")
-      ("f" nil "finished" :exit t))
+      ("k" nil "finished" :exit t))
 
 
     (defhydra hydra-shape-screen (:timeout 4)
@@ -570,7 +573,7 @@ For quick repetitive actions
       ("t" enlarge-window "up")
       ("s" (enlarge-window -) "down")
       ("d" balance-windows "equalize")
-      ("f" nil "finished" :exit t))
+      ("k" nil "finished" :exit t))
 
     ;; enlarge-window-horizontallyST
 
@@ -1197,72 +1200,77 @@ This is font size
 
 
 * LSP Mode
-
+- =(setq lsp-log-io t)= This var let you see what exactly is being sent between the server and the client
+- =lsp-client-settings= is the var that controls how lsp will interact on the users end
+- =(lsp-register-custom-settings)= Sets those settings
+- =(lsp-describe-session)= shows the capabilities of the current session. See the troubleshooting section of the lsp-mode README.
 #+begin_src emacs-lisp :tangle yes
 
-    ;; (use-package lsp-mode
-    ;;   :straight t
-    ;;   :init
-  ;;     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  ;;     (setq lsp-keymap-prefix "C-c l")
-  ;;     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-  ;; 	   (ruby-mode . lsp)
-  ;; 	   ;; if you want which-key integration
-  ;; 	   (lsp-mode . lsp-enable-which-key-integration))
-  ;;     :commands lsp
-  ;;     :config ((require 'lsp-clients)
-  ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  ;; :custom
-  ;;  ;; what to use when checking on-save. "check" is default, I prefer clippy
-  ;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
-  ;;   (lsp-eldoc-render-all t)
-  ;;   (lsp-idle-delay 0.6)
-  ;;   ;; enable / disable the hints as you prefer:
-  ;;   (lsp-rust-analyzer-server-display-inlay-hints t)
-  ;;   (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  ;;   (lsp-rust-analyzer-display-chaining-hints t)
-  ;;   (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  ;;   (lsp-rust-analyzer-display-closure-return-type-hints t)
-  ;;   (lsp-rust-analyzer-display-parameter-hints nil)
-  ;;   (lsp-rust-analyzer-display-reborrow-hints nil)
-  ;; )
-  (use-package lsp-mode
-    :straight t
-    :commands lsp
-    :custom
-    ;; what to use when checking on-save. "check" is default, I prefer clippy
-    (lsp-rust-analyzer-cargo-watch-command "clippy")
-    (lsp-eldoc-render-all t)
-    (lsp-idle-delay 0.6)
-    ;; enable / disable the hints as you prefer:
-    (lsp-rust-analyzer-server-display-inlay-hints t)
-    (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-    (lsp-rust-analyzer-display-chaining-hints t)
-    (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-    (lsp-rust-analyzer-display-closure-return-type-hints t)
-    (lsp-rust-analyzer-display-parameter-hints nil)
-    (lsp-rust-analyzer-display-reborrow-hints nil)
-    :config
-    (add-hook 'lsp-mode-hook 'lsp-ui-mode))
-    ;; optionally
-    (use-package lsp-ui :commands lsp-ui-mode
-    :custom
-    (lsp-ui-peek-always-show t)
-    (lsp-ui-sideline-show-hover t)
-    (lsp-ui-doc-enable t))
-    ;; if you are helm user
-    ;; if you are ivy user
+	;; (use-package lsp-mode
+	;;   :straight t
+	;;   :init
+      ;;     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+      ;;     (setq lsp-keymap-prefix "C-c l")
+      ;;     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+      ;; 	   (ruby-mode . lsp)
+      ;; 	   ;; if you want which-key integration
+      ;; 	   (lsp-mode . lsp-enable-which-key-integration))
+      ;;     :commands lsp
+      ;;     :config ((require 'lsp-clients)
+      ;; (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+      ;; :custom
+      ;;  ;; what to use when checking on-save. "check" is default, I prefer clippy
+      ;;   (lsp-rust-analyzer-cargo-watch-command "clippy")
+      ;;   (lsp-eldoc-render-all t)
+      ;;   (lsp-idle-delay 0.6)
+      ;;   ;; enable / disable the hints as you prefer:
+      ;;   (lsp-rust-analyzer-server-display-inlay-hints t)
+      ;;   (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+      ;;   (lsp-rust-analyzer-display-chaining-hints t)
+      ;;   (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+      ;;   (lsp-rust-analyzer-display-closure-return-type-hints t)
+      ;;   (lsp-rust-analyzer-display-parameter-hints nil)
+      ;;   (lsp-rust-analyzer-display-reborrow-hints nil)
+      ;; )
+      (use-package lsp-mode
+	:straight t
+	:commands lsp
+	:custom
+	;; what to use when checking on-save. "check" is default, I prefer clippy
+	(lsp-rust-analyzer-cargo-watch-command "clippy")
+	(lsp-eldoc-render-all t)
+	(lsp-idle-delay 0.6)
+	;; enable / disable the hints as you prefer:
+	(lsp-rust-analyzer-server-display-inlay-hints t)
+	(lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+	(lsp-rust-analyzer-display-chaining-hints t)
+	(lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+	(lsp-rust-analyzer-display-closure-return-type-hints t)
+	(lsp-rust-analyzer-display-parameter-hints nil)
+	(lsp-rust-analyzer-display-reborrow-hints nil)
+	:config
+	(add-hook 'lsp-mode-hook 'lsp-ui-mode)
+	:hook
+  (python-mode . lsp))
+	;; optionally
+	(use-package lsp-ui :commands lsp-ui-mode
+	:custom
+	(lsp-ui-peek-always-show t)
+	(lsp-ui-sideline-show-hover t)
+	(lsp-ui-doc-enable t))
+	;; if you are helm user
+	;; if you are ivy user
 
-    ;; optionally if you want to use debugger
+	;; optionally if you want to use debugger
 
-    ;; (use-package dap-mode)
+	;; (use-package dap-mode)
 
-    ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+	;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
-    ;; optional if you want which-key integration
-    ;; (use-package which-key
-    ;;     :config
-    ;;     (which-key-mode))
+	;; optional if you want which-key integration
+	;; (use-package which-key
+	;;     :config
+	;;     (which-key-mode))
 
 
 #+end_src
@@ -1458,17 +1466,19 @@ Mandaroy
 * Rust Delvelopment
 
 #+begin_src emacs-lisp :tangle yes
-(use-package toml-mode)
+  (use-package toml-mode)
 
-(use-package rust-mode
-  :hook (rust-mode . lsp))
+  (use-package rust-mode
+    :hook (rust-mode . lsp))
 
-;; Add keybindings for interacting with Cargo
-(use-package cargo
-  :hook (rust-mode . cargo-minor-mode))
+  ;; Add keybindings for interacting with Cargo
+  (use-package cargo
+    :hook (rust-mode . cargo-minor-mode))
 
-(use-package flycheck-rust
-  :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+  (use-package flycheck-rust
+    :config (add-hook 'flycheck-mode-hook #'flycheck-rust-setup))
+
+  
 #+end_src
 
 * Rustic
@@ -1479,17 +1489,18 @@ Mandaroy
 ** =C-c C-c= is not the best feeling binding I do not like double tapping maybe somethnig with shift involved =C-S-c=
 
 #+begin_src emacs-lisp :tangle yes
-(use-package rustic
-  :straight t
-  :bind (:map rustic-mode-map
-              ("C-S-e" . lsp-ui-imenu)
-              ("C-c C-c ?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status)))
+  (use-package rustic
+    :straight t
+    :bind (:map rustic-mode-map
+		("C-S-e" . lsp-ui-imenu)
+		("C-c C-c ?" . lsp-find-references)
+		("C-c C-c l" . flycheck-list-errors)
+		("C-c C-c a" . lsp-execute-code-action)
+		("C-c C-c r" . lsp-rename)
+		("C-c C-c q" . lsp-workspace-restart)
+		("C-c C-c Q" . lsp-workspace-shutdown)
+		("C-c C-c s" . lsp-rust-analyzer-status))
+   :config (setq rustic-format-on-save t))
 #+end_src
 * Resume 
 
@@ -1520,7 +1531,7 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
 #+end_src
 
 * Yas snippet
-
+** TODO make yas snippet work with lsp mode so they do not conflict
 #+begin_src emacs-lisp :tangle yes
   (use-package yasnippet
     :straight t
@@ -1530,4 +1541,23 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
     (add-hook 'text-mode-hook 'yas-minor-mode)
     (yas-global-mode 1))
   
+#+end_src
+
+* Python
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package pyvenv
+  :straight t
+  :config
+  ;; (setq pyvenv-workon "emacs")  ; Default venv
+  (pyvenv-tracking-mode 1))
+#+end_src
+** Here
+
+#+begin_src emacs-lisp :tangle yes
+(defun async-shell-to-buffer (cmd)
+  (interactive "sCall command: ")
+  (let ((output-buffer (generate-new-buffer (format "*async:%s*" cmd)))
+        (error-buffer  (generate-new-buffer (format "*error:%s*" cmd))))
+    (async-shell-command cmd output-buffer error-buffer)))
 #+end_src

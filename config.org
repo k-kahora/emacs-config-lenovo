@@ -163,7 +163,13 @@ Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life
     )
 #+end_src
 
-
+* TRAMP
+#+begin_src emacs-lisp :tangle yes
+  ;; Default user when logging into tramp
+(setq tramp-completion-reread-directory-timeout nil)
+  (setq tramp-default-user-alist
+	(quote (("173.72.18.23#2222" "malcolm"))))
+#+end_src
 * TODO Counsel
 
 Not in use right now
@@ -460,90 +466,101 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
 #+begin_src emacs-lisp :tangle yes
 
-  (global-set-key (kbd "C-S-n") 'other-window)
+    (global-set-key (kbd "C-S-n") 'other-window)
 
-      ;; to do make f P for private config
-    (defun delete-cur-file ()
-      (interactive)
-      (delete-file (buffer-file-name)
-    ))
+	;; to do make f P for private config
+      (defun tramp-server ()
+	"Find file for tramp"
+    (interactive)
+  (find-file "/ssh:173.72.18.23#2222:")    )
 
+	;; This is for file management
+	(mk/leader-keys
+      ;; r s t h n a i o
+	  "/" '(:ignore t :which-key "file management" )
+	  "/k" '(delete-cur-file :which-key "delete file")
+	  "/a" '(save-buffer :which-key "save file")
+	  "/e" '(make-empty-file :which-key "empty file")
+	  "/i" '(insert-file :which-key "inser file into buffer")
+	  "/s" '(tramp-server :which-key "tramp server")
+	  "/o" '(rename-file :which-key "rename file"))
+      ;; Expand this further ^^
+	(mk/leader-keys
+	  "n" '(:ignore t :which-key "window management" )
+	  "nr" '(split-window-right :which-key "vertical split" )
+	  "ns" '(split-window-below :which-key "horizontal-split" )
+	  "nk" '(delete-window :which-key "remove window from view")
+      ;; C-n o is good for EXWM
+	  "ne" '(delete-other-windows :which-key "remove all windows but current"))
 
-      ;; This is for file management
-      (mk/leader-keys
-    ;; r s t h n a i o
-	"/" '(:ignore t :which-key "file management" )
-	"/k" '(delete-cur-file :which-key "delete file")
-	"/a" '(save-buffer :which-key "save file")
-	"/i" '(insert-file :which-key "inser file into buffer")
-	"/o" '(rename-file :which-key "rename file"))
-    ;; Expand this further ^^
-      (mk/leader-keys
-	"n" '(:ignore t :which-key "window management" )
-	"nr" '(split-window-right :which-key "vertical split" )
-	"ns" '(split-window-below :which-key "horizontal-split" )
-	"nk" '(delete-window :which-key "remove window from view")
-    ;; C-n o is good for EXWM
-	"ne" '(delete-other-windows :which-key "remove all windows but current"))
+	;; THis is for buffer management
+      ;; Like C-M-j find a simalar binding for buffer switcing it is simply to good
 
-      ;; THis is for buffer management
-    ;; Like C-M-j find a simalar binding for buffer switcing it is simply to good
+      ;; This is for project related commands
+    ;; TODO Eldoc buffer bind this
+	(mk/leader-keys
+	  "p" '(:ignore t :which-key "project based cmd's" )
+	  "pg" '(projectile-ripgrep :which-key "project rip-grep" )
+	  "pe" '(projectile-switch-project :which-key "projectile swith project's" )
+	  "pj" '(projectile-run-project :which-key "project run" )
+	  "p." '(projectile-find-file :which-key "Find file in project" )
+	  "p&" '(async-shell-command :which-key "async shell commands" )
+	  "pr" '(projectile-run-project :which-key "Run project" )
+	  "p," '(projectile-switch-to-buffer :which-key "Switch to buffer in project" ))
 
-    ;; This is for project related commands
-  ;; TODO Eldoc buffer bind this
-      (mk/leader-keys
-	"p" '(:ignore t :which-key "project based cmd's" )
-	"pg" '(projectile-ripgrep :which-key "project rip-grep" )
-	"pe" '(projectile-switch-project :which-key "projectile swith project's" )
-	"pj" '(projectile-run-project :which-key "project run" )
-	"p." '(projectile-find-file :which-key "Find file in project" )
-	"p&" '(async-shell-command :which-key "async shell commands" )
-	"pr" '(projectile-run-project :which-key "Run project" )
-	"p," '(projectile-switch-to-buffer :which-key "Switch to buffer in project" ))
+    ;; Org mode 
 
-  ;; Org mode 
+	(mk/leader-keys
+	  "r" '(:ignore t :which-key "Registers" )
+	  "rj" '(jump-to-register :which-key "Jump to register" ))
 
-      (mk/leader-keys
-	"r" '(:ignore t :which-key "Registers" )
-	"rj" '(jump-to-register :which-key "Jump to register" ))
+	(mk/leader-keys
+	  "c" '(:ignore t :which-key "Org mode global commands" )
+	  "cd" '(air-pop-to-org-agenda :which-key "org agenda all" )
+	  "ca" '(org-agenda :which-key "org agenda" ))
 
-      (mk/leader-keys
-	"c" '(:ignore t :which-key "Org mode global commands" )
-	"cd" '(air-pop-to-org-agenda :which-key "org agenda all" )
-	"ca" '(org-agenda :which-key "org agenda" ))
+	(mk/leader-keys
+	  "g" '(:ignore t :which-key "project based cmd's" )
+	  "gc" '(magit-clone :which-key "magit clone" ))
+	;; Opener's 
 
-      (mk/leader-keys
-	"g" '(:ignore t :which-key "project based cmd's" )
-	"gc" '(magit-clone :which-key "magit clone" ))
-      ;; Opener's 
+	(mk/leader-keys
+	  "o" '(:ignore t :which-key "launch programs" )
+	  "of" '(mk/launch-firefox  :which-key "firefox" )
+	  "og" '(magit :which-key "Open magit" )
+	  "ot" '(vterm-toggle :which-key "vterm popper")
+	  "om" '(multi-vterm :which-key "new vterm buffer")
+	  "oe" '(mk/launch-epiphany :which-key "epiphany" )
+	  "od" '(docker :which-key "docker" ))
 
-      (mk/leader-keys
-	"o" '(:ignore t :which-key "launch programs" )
-	"of" '(mk/launch-firefox  :which-key "firefox" )
-	"og" '(magit :which-key "Open magit" )
-	"ot" '(vterm-toggle :which-key "vterm popper")
-	"oe" '(mk/launch-epiphany :which-key "epiphany" ))
+	;; org roam
+	(mk/leader-keys
+	  "r" '(:ignore t :which-key "org roam" )
+	  "rg" '(org-roam-graph :which-key "org roam graph" )
+	  "rf" '(org-roam-node-find :which-key "find roam node" )
+	  "rc" '(org-roam-capture :which-key "org roam capture" )
+	  "ri" '(org-roam-node-insert :which-key "insert a new node" ))
 
-      (mk/leader-keys
-	"u" '(:ignore t :which-key "buffer managment" )
-	"ui" '(insert-buffer :which-key "insert buffer" )
-	"uk" '(kill-buffer :which-key "kill buffer" )
-	"ui" '(ibuffer :which-key "ibuffer" ))
+	(mk/leader-keys
+	  "u" '(:ignore t :which-key "buffer managment" )
+	  "ui" '(insert-buffer :which-key "insert buffer" )
+	  "uk" '(kill-buffer :which-key "kill buffer" )
+	  "ui" '(ibuffer :which-key "ibuffer" ))
 
-      (mk/leader-keys
-	"e" '(:ignore t :which-key "elsip evaluations" )
-	"ep" '(eval-last-sexp :which-key "eval at point" )
-	"ee" '(eval-expression  :which-key "eval expression" )
-	"ed" '(eval-defun :which-key "eval defun" )
-	"eb" '(eval-buffer :which-key "eval buffer" )
-  ;; Make a package for a toggleabl ielm
-	"em" '(ielm :which-key "elisp repl" ))
-  ;; (+ 40 32)
+	(mk/leader-keys
+	  "e" '(:ignore t :which-key "elsip evaluations" )
+	  "ep" '(eval-last-sexp :which-key "eval at point" )
+	  "ee" '(eval-expression  :which-key "eval expression" )
+	  "ed" '(eval-defun :which-key "eval defun" )
+	  "eb" '(eval-buffer :which-key "eval buffer" )
+    ;; Make a package for a toggleabl ielm
+	  "em" '(ielm :which-key "elisp repl" ))
+    ;; (+ 40 32)
 
-      (mk/leader-keys
-	"l" '(:ignore t :which-key "Latex" )
-	"lt" '(org-latex-preview :which-key "ln line latex" )
-	"ls" '(org-export-dispatch :which-key "ln line latex" ))
+	(mk/leader-keys
+	  "l" '(:ignore t :which-key "Latex" )
+	  "lt" '(org-latex-preview :which-key "ln line latex" )
+	  "ls" '(org-export-dispatch :which-key "ln line latex" ))
 
 
 
@@ -697,6 +714,13 @@ Adds the metadata you see at the side of the completions
   :init
   (marginalia-mode))
 #+end_src
+* Docker
+#+begin_src emacs-lisp :tangle yes
+  (use-package docker
+    :straight t)
+
+#+end_src
+
 * Magit
 
 #+begin_src emacs-lisp :tangle yes

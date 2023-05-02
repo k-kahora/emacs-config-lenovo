@@ -1585,3 +1585,19 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
         (error-buffer  (generate-new-buffer (format "*error:%s*" cmd))))
     (async-shell-command cmd output-buffer error-buffer)))
 #+end_src
+
+* Chat GPT
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package chatgpt-shell
+    :ensure t
+    :custom
+    ((chatgpt-shell-api-url-base "http://localhost:3000")
+     (chatgpt-shell-openai-key
+      (lambda ()
+	;; Here the openai-key should be the proxy service key.
+	(auth-source-pass-get 'secret "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")))))
+  ;; (setq chatgpt-shell-openai-key
+  ;;       (lambda ()
+  ;; 	(auth-source-pick-first-password :host "api.openai.com")))
+#+end_src

@@ -203,8 +203,8 @@ Not in use right now
     :straight t
     :bind (
       :map ivy-minibuffer-map
-      ("C-j" . 'ivy-next-line)
-      ("C-k" . 'ivy-previous-line)
+      ("C-n" . 'ivy-next-line)
+      ("C-p" . 'ivy-previous-line)
     ))
 
 #+end_src
@@ -226,7 +226,7 @@ Not in use right now
     (doom-themes-visual-bell-config)
     ;; Corrects (and improves) org-mode's native fontification.
     (doom-themes-org-config)
-    (load-theme 'doom-henna t nil))
+    (load-theme 'ef-bio t nil))
   ;; :init (load-theme 'doom-palenight t nil))
 #+end_src 
 * gruber
@@ -528,9 +528,12 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
         ;; 
 	(mk/leader-keys
 	  "s" '(:ignore t :which-key "lsp commands" )
-	  "sd" '(lsp-describe-session :whick-key "describe all lsp sessions" )
-	  "sr" '(lsp-find-references :whick-key "lsp find references" )
-	  "sx" '(lsp-ui-peek-find-references :whick-key "referencs at point" ))
+	  "sd" '(lsp-describe-session :which-key "describe all lsp sessions" )
+	  "sr" '(lsp-find-references :which-key "lsp find references" )
+	  "sx" '(lsp-ui-peek-find-references :which-key "referencs at point" )
+	  "st" '(:ignore t :which-key "lsp treemacs")
+	  "sts" '(lsp-treemacs-symbols :which-key "treemacs symobls for file" )
+	  "stp" '(treemacs :which-key "treemacs for project" ))
 
 	(mk/leader-keys
 	  "r" '(:ignore t :which-key "Registers" )
@@ -672,8 +675,8 @@ Lightweight complestion framework vert slim and fast
     (use-package vertico
       :straight t
     :bind (:map vertico-map
-	   ("C-j" . vertico-next)
-	   ("C-k" . vertico-previous)
+	   ("C-n" . vertico-next)
+	   ("C-p" . vertico-previous)
 	   ("C-f" . vertico-exit)
 	   :map minibuffer-local-map
 	   ("M-h" . backward-kill-word))
@@ -1251,53 +1254,55 @@ This is font size
 - =(lsp-register-custom-settings)= Sets those settings
 - =(lsp-describe-session)= shows the capabilities of the current session. See the troubleshooting section of the lsp-mode README.
 #+begin_src emacs-lisp :tangle yes
-	      (use-package lsp-mode
-		:straight t
-		:commands (lsp lsp-deferred)
-		:custom
-		;; what to use when checking on-save. "check" is default, I prefer clippy
-		(lsp-rust-analyzer-cargo-watch-command "clippy")
-		(lsp-eldoc-render-all t)
-		(lsp-idle-delay 0.6)
-		;; enable / disable the hints as you prefer:
-		(lsp-rust-analyzer-server-display-inlay-hints t)
-		(lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-		(lsp-rust-analyzer-display-chaining-hints t)
-		(lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-		(lsp-rust-analyzer-display-closure-return-type-hints t)
-		(lsp-rust-analyzer-display-parameter-hints nil)
-		(lsp-rust-analyzer-display-reborrow-hints nil)
-		:config
-		(add-hook 'lsp-mode-hook 'lsp-ui-mode)
-		(setq lsp-keymap-prefix "C-M-s-e x")
-		:hook
-	  (python-mode . lsp))
-		;; optionally
-		(use-package lsp-ui
-		  :hook (lsp-mode . lsp-ui-mode)
-		  :commands lsp-ui-mode
-		:custom
-		(lsp-ui-peek-always-show nil)
-		(lsp-ui-sideline-show-hover nil)
-		(lsp-ui-doc-enable t))
+		(use-package lsp-mode
+		  :straight t
+		  :commands (lsp lsp-deferred)
+		  :custom
+		  ;; what to use when checking on-save. "check" is default, I prefer clippy
+		  (lsp-rust-analyzer-cargo-watch-command "clippy")
+		  (lsp-eldoc-render-all t)
+		  (lsp-idle-delay 0.6)
+		  ;; enable / disable the hints as you prefer:
+		  (lsp-rust-analyzer-server-display-inlay-hints t)
+		  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+		  (lsp-rust-analyzer-display-chaining-hints t)
+		  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+		  (lsp-rust-analyzer-display-closure-return-type-hints t)
+		  (lsp-rust-analyzer-display-parameter-hints nil)
+		  (lsp-rust-analyzer-display-reborrow-hints nil)
+		  :config
+		  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+		  (setq lsp-keymap-prefix "C-M-s-e x")
+		  :hook
+	    (python-mode . lsp))
+		  ;; optionally
+		  (use-package lsp-ui
+		    :hook (lsp-mode . lsp-ui-mode)
+		    :commands lsp-ui-mode
+		  :custom
+		  (lsp-ui-peek-always-show t)
+		  (lsp-ui-sideline-show-hover t)
+		  (lsp-ui-doc-enable t))
+    (use-package lsp-treemacs
+  :after lsp)
 
-  ;;   (define-key lsp-ui-mode-map [remap xref-next-line] #'lsp-ui-peek--select-next)
+    ;;   (define-key lsp-ui-mode-map [remap xref-next-line] #'lsp-ui-peek--select-next)
 
-  ;; (define-key lsp-ui-mode-map (kbd "C-j") #'xref-next-line)
+    ;; (define-key lsp-ui-mode-map (kbd "C-j") #'xref-next-line)
 
-		;; if you are helm user
-		;; if you are ivy user
+		  ;; if you are helm user
+		  ;; if you are ivy user
 
-		;; optionally if you want to use debugger
+		  ;; optionally if you want to use debugger
 
-		;; (use-package dap-mode)
+		  ;; (use-package dap-mode)
 
-		;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+		  ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
 
-		;; optional if you want which-key integration
-		;; (use-package which-key
-		;;     :config
-		;;     (which-key-mode))
+		  ;; optional if you want which-key integration
+		  ;; (use-package which-key
+		  ;;     :config
+		  ;;     (which-key-mode))
 
 
 #+end_src
@@ -1596,15 +1601,6 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
   
 #+end_src
 
-* Python
-
-#+begin_src emacs-lisp :tangle yes
-  (use-package pyvenv
-  :straight t
-  :config
-  ;; (setq pyvenv-workon "emacs")  ; Default venv
-  (pyvenv-tracking-mode 1))
-#+end_src
 ** Here
 
 #+begin_src emacs-lisp :tangle yes
@@ -1688,3 +1684,20 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
 #+end_src
 
 
+
+
+*** Python
+#+begin_src emacs-lisp :tangle no
+  (use-package python-mode 
+  :straight t 
+  :custom
+  (python-shell-interpreter "python3"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package pyvenv
+  :straight t
+  :config
+  ;; (setq pyvenv-workon "emacs")  ; Default venv
+  (pyvenv-tracking-mode 1))
+#+end_src

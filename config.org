@@ -1601,3 +1601,46 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
   ;;       (lambda ()
   ;; 	(auth-source-pick-first-password :host "api.openai.com")))
 #+end_src
+
+* Buffer environments
+
+#+begin_src emacs-lisp :tangle yes
+  (use-package envrc
+  :straight t)
+  (envrc-global-mode)
+#+end_src
+
+* Startup Screens
+
+#+begin_src emacs-lisp :tangle yes
+(setq initial-scratch-message
+        "
+
+
+
+                       ;▓█████ ██▒   █▓ ██▓ ██▓
+                       ;▓█   ▀▓██░   █▒▓██▒▓██▒
+                       ;▒███   ▓██  █▒░▒██▒▒██░
+                       ;▒▓█  ▄  ▒██ █░░░██░▒██░
+                       ;░▒████▒  ▒▀█░  ░██░░██████▒
+                       ;░░ ▒░ ░  ░ ▐░  ░▓  ░ ▒░▓  ░
+                        ;░ ░  ░  ░ ░░   ▒ ░░ ░ ▒  ░
+                          ;░       ░░   ▒ ░  ░ ░  ░
+                          ;░  ░     ░   ░      ░
+                                  ;░
+
+
+
+               \"█████  ███▄ ▄███▓ ▄▄▄       ▄████▄    ██████
+               ▓█   ▀ ▓██▒▀█▀ ██▒▒████▄    ▒██▀ ▀█  ▒██    ░
+               ▒███   ▓██    ▓██░▒██  ▀█▄  ▒▓█    ▄ ░ ▓██▄▄
+               ▒▓█  ▄ ▒██    ▒██ ░██▄▄▄▄██ ▒▓▓▄ ▄██▒  ▒   ██▒
+               ░▒████▒▒██▒   ░██▒ ▓█   ▓██▒▒ ▓███▀ ░▒██████▒▒
+               ░░ ▒░ ░░ ▒░   ░  ░ ▒▒   ▓▒█░░ ░▒ ▒  ░▒ ▒▓▒ ▒ ░
+                ░ ░  ░░  ░      ░  ▒   ▒▒ ░  ░  ▒   ░ ░▒  ░ ░
+                  ░   ░      ░     ░   ▒   ░        ░  ░  ░
+                  ░  ░       ░         ░  ░░ ░            ░
+                                           \"")
+
+
+#+end_src

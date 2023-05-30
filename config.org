@@ -20,6 +20,55 @@
   (set-register ?t '(file . "/home/malcolm/notes/todo.org"))
 
 #+end_src
+* Backup files
+#+begin_src emacs-lisp :tangle yes
+  (defvar --backup-directory (concat user-emacs-directory "backups"))
+  (if (not (file-exists-p --backup-directory))
+	  (make-directory --backup-directory t))
+  (setq backup-directory-alist `(("." . ,--backup-directory)))
+  (setq make-backup-files t               ; backup of a file the first time it is saved.
+	backup-by-copying t               ; don't clobber symlinks
+	version-control t                 ; version numbers for backup files
+	delete-old-versions t             ; delete excess backup files silently
+	delete-by-moving-to-trash t
+	kept-old-versions 6               ; oldest versions to keep when a new numbered backup is made (default: 2)
+	kept-new-versions 9               ; newest versions to keep when a new numbered backup is made (default: 2)
+	auto-save-default t               ; auto-save every buffer that visits a file
+	auto-save-timeout 20              ; number of seconds idle time before auto-save (default: 30)
+	auto-save-interval 200            ; number of keystrokes between auto-saves (default: 300)
+	vc-make-backup-files t            ; Backup versioned files which emacs does not do by default
+	)
+#+end_src 
+** Saves
+make a backup on each save, not just the first. We make two kinds of backups:
+
+    per-session backups: once on the first save of the buffer in each Emacs session. These simulate Emac's default backup behavior.
+
+    per-save backups: once on every save. Emacs does not do this by default, but it's very useful if you leave Emacs running for a long time.
+
+#+begin_src emacs-lisp :tangle yes
+
+;; Default and per-save backups go here:
+(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
+
+(defun force-backup-of-buffer ()
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
+    ;; Override the default parameters for per-session backups.
+    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
+          (kept-new-versions 3))
+      (backup-buffer)))
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  (let ((buffer-backed-up nil))
+    (backup-buffer)))
+
+(add-hook 'before-save-hook  'force-backup-of-buffer)
+#+end_src 
+
+
 * Remove excess heading garbage
 
 #+begin_src emacs-lisp :tangle yes
@@ -225,8 +274,7 @@ Not in use right now
     ;; Enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
     ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config)
-    (load-theme 'ef-bio t nil))
+    (doom-themes-org-config))
   ;; :init (load-theme 'doom-palenight t nil))
 #+end_src 
 * gruber
@@ -244,9 +292,12 @@ Prot makes damn good themes
 
 #+begin_src emacs-lisp :tangle yes
 
-  (use-package ef-themes
-    :straight t)
-    ;; :init (load-theme 'ef-dark t nil))
+    (use-package ef-themes
+      :straight t
+  :config  
+  (load-theme 'ef-bio t nil)
+  )
+      ;; :init (load-theme 'ef-dark t nil))
 
 #+end_src 
 
@@ -494,6 +545,7 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
       ;; r s t h n a i o
 	  "/" '(:ignore t :which-key "file management" )
 	  "/k" '(delete-cur-file :which-key "delete file")
+	  "/d" '(make-directory :which-key "Make directory")
 	  "/a" '(save-buffer :which-key "save file")
 	  "/e" '(make-empty-file :which-key "empty file")
 	  "/i" '(insert-file :which-key "inser file into buffer")
@@ -1309,18 +1361,15 @@ This is font size
 ** Pyton lsp
 #+begin_src emacs-lisp :tangle yes
 
-(use-package lsp-pyright
-  :after lsp-mode
-  :custom
-  (lsp-pyright-auto-import-completions nil)
-  (lsp-pyright-typechecking-mode "off")
-  :config
-  (fk/async-process
-   "npm outdated -g | grep pyright | wc -l" nil
-   (lambda (process output)
-     (pcase output
-       ("0\n" (message "Pyright is up to date."))
-       ("1\n" (message "A pyright update is available."))))))    ; or lsp-deferred
+  (use-package lsp-pyright
+    :after lsp-mode
+    :straight t
+    :custom
+    (lsp-pyright-auto-import-completions nil)
+    (lsp-pyright-typechecking-mode "off")
+    :hook (python-mode . (lambda ()
+			   (require 'lsp-pyright)
+			   (lsp))))  ; or lsp-deferred    :config
 
 #+end_src
 
@@ -1694,10 +1743,19 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
   (python-shell-interpreter "python3"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
   (use-package pyvenv
   :straight t
   :config
   ;; (setq pyvenv-workon "emacs")  ; Default venv
   (pyvenv-tracking-mode 1))
+#+end_src
+
+*** Yml mde
+#+begin_src emacs-lisp :tangle yes
+
+      (use-package yaml-mode
+    :straight t
+  :config (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+
 #+end_src

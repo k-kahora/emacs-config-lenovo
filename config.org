@@ -521,6 +521,7 @@ evil mode
 
        ;; could get annoying with vim escape
        (global-set-key (kbd "C-u" ) 'evil-scroll-up)
+       (global-set-key (kbd "C-;" ) 'universal-argument)
        (global-set-key (kbd "<escape>" ) 'keyboard-escape-quit)
        (global-set-key (kbd "<escape>" ) 'keyboard-escape-quit)
 
@@ -577,7 +578,7 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
     ;; Org mode 
 
-        ;; 
+	;; 
 	(mk/leader-keys
 	  "s" '(:ignore t :which-key "lsp commands" )
 	  "sd" '(lsp-describe-session :which-key "describe all lsp sessions" )
@@ -638,6 +639,11 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "l" '(:ignore t :which-key "Latex" )
 	  "lt" '(org-latex-preview :which-key "ln line latex" )
 	  "ls" '(org-export-dispatch :which-key "ln line latex" ))
+
+	(mk/leader-keys
+	  "b" '(:ignore t :which-key "Bookmarks" )
+	  "bs" '(bookmark-set :which-key "Set the bookmark" )
+	  "bj" '(bookmark-jump :which-key "Jump to the bookmark"))
 
 
 
@@ -1551,12 +1557,18 @@ Mandaroy
 
 * Lispy
 
-#+begin_src emacs-lisp :tangle no 
+#+begin_src emacs-lisp :tangle yes
   (use-package lispy 
     :straight t)
 (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
 #+end_src
+* Rainbow delimeters
 
+#+begin_src emacs-lisp :tangle yes
+  (use-package rainbow-delimiters 
+    :straight t)
+(add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+#+end_src
 * evil-clever parens 
 
 #+begin_src emacs-lisp :tangle no

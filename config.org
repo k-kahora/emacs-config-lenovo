@@ -20,6 +20,40 @@
   (set-register ?t '(file . "/home/malcolm/notes/todo.org"))
 
 #+end_src
+* Mode line at top
+
+#+begin_src emacs-lisp :tangle yes
+  (setq-default header-line-format mode-line-format)
+
+(defvar-local hidden-mode-line-mode nil)
+
+(define-minor-mode hidden-mode-line-mode
+  "Minor mode to hide the mode-line in the current buffer."
+  :init-value nil
+  :global t
+  :variable hidden-mode-line-mode
+  :group 'editing-basics
+  (if hidden-mode-line-mode
+      (setq hide-mode-line mode-line-format
+            mode-line-format nil)
+    (setq mode-line-format hide-mode-line
+          hide-mode-line nil))
+  (force-mode-line-update)
+  ;; Apparently force-mode-line-update is not always enough to
+  ;; redisplay the mode-line
+  (redraw-display)
+  (when (and (called-interactively-p 'interactive)
+             hidden-mode-line-mode)
+    (run-with-idle-timer
+     0 nil 'message
+     (concat "Hidden Mode Line Mode enabled.  "
+             "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
+
+;; If you want to hide the mode-line in every buffer by default
+;; (add-hook 'after-change-major-mode-hook 'hidden-mode-line-mode)
+
+
+#+end_src
 * Remove excess heading garbage
 
 #+begin_src emacs-lisp :tangle yes
@@ -125,22 +159,31 @@ Supress native comp warnings
 Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][org-agenda-method]] 
 #+begin_src emacs-lisp :tangle yes
 
-(use-package org :straight (:type built-in)
- :bind ((:map org-agenda-key-map
+     (use-package org :straight (:type built-in)
+      :bind ((:map org-agenda-key-map
 
-		 ("k" . org-agenda-previous-item)
-		 ("j" . org-agenda-next-item)
+		      ("k" . org-agenda-previous-item)
+		      ("j" . org-agenda-next-item)
 
-		 ("L" . org-agenda-do-date-later)
-		 ("H" . org-agenda-do-date-later))
-	 (:map org-mode-map
-	  ("H" . 'org-timestamp-down-day)
-	  ("I" . 'org-timestamp-up-day)))
- 
-	:config 
+		      ("L" . org-agenda-do-date-later)
+		      ("H" . org-agenda-do-date-later))
+	      (:map org-mode-map
+	       ("H" . 'org-timestamp-down-day)
+	       ("I" . 'org-timestamp-up-day)))
 
-	 (setq org-agenda-files '("~/Sync/agenda/"))
-	 (setq org-log-done 'time))
+
+	     :config 
+    (setq org-agenda-include-diary t)
+	      (setq org-agenda-files '("~/Sync/agenda/"))
+
+  (setq org-tag-alist '((:startgroup . nil)
+			("coputer_graphics" . ?c) ("research" . ?r)
+			("programming_languages" . ?p)
+			("black_class" . ?b)
+			(:endgroup . nil)
+			("school" . ?s) ("personal_project" . ?j)))
+  (setq org-log-done 'time))
+
 
 
 
@@ -399,10 +442,10 @@ evil mode
   (use-package evil-org
     :straight t
     ;; :after org
-    :hook (org-mode . (lambda () evil-org-mode)))
-    ;; :config
-    ;; (require 'evil-org-agenda)
-    ;; (evil-org-agenda-set-keys))
+    :hook (org-mode . (lambda () evil-org-mode))
+    :config
+    (require 'evil-org-agenda)
+    (evil-org-agenda-set-keys))
 
     (use-package evil-easymotion
       :straight t
@@ -463,6 +506,7 @@ evil mode
   ;; Single key triggers are for the most used commands like find-file
      "."  '(find-file  :which-key "find file")
      ","  '(switch-to-buffer :which-key "switch buffers")
+     ";"  '(org-agenda :which-key "org-agenda")
      "tt" '(load-theme :which-key "choose theme"))
 
      (general-define-key "C-M-j" 'switch-to-buffer)
@@ -525,7 +569,7 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
     ;; Org mode 
 
-        ;; 
+	;; 
 	(mk/leader-keys
 	  "s" '(:ignore t :which-key "lsp commands" )
 	  "sd" '(lsp-describe-session :which-key "describe all lsp sessions" )
@@ -539,10 +583,6 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "r" '(:ignore t :which-key "Registers" )
 	  "rj" '(jump-to-register :which-key "Jump to register" ))
 
-	(mk/leader-keys
-	  "c" '(:ignore t :which-key "Org mode global commands" )
-	  "cd" '(air-pop-to-org-agenda :which-key "org agenda all" )
-	  "ca" '(org-agenda :which-key "org agenda" ))
 
 	(mk/leader-keys
 	  "g" '(:ignore t :which-key "project based cmd's" )
@@ -570,7 +610,9 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "u" '(:ignore t :which-key "buffer managment" )
 	  "ui" '(insert-buffer :which-key "insert buffer" )
 	  "uk" '(kill-buffer :which-key "kill buffer" )
+	  "ua" '(org-switchb :which-key "Org buffer" )
 	  "ui" '(ibuffer :which-key "ibuffer" ))
+
 
 	(mk/leader-keys
 	  "e" '(:ignore t :which-key "elsip evaluations" )
@@ -589,46 +631,64 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 
 
 
+	(mk/leader-keys
+	  "a" '(:ignore t :which-key "Org agenda" )
+	  "af" '(org-agenda-file-to-front :which-key "Add file to the org agenda tracker" )
+	  "ar" '(org-remove-file :which-key "Remove file from the org agenda tracker" )
+	  "at" '(org-set-tags-command :which-key "Add a tag to the org heading" )
+	  "ac" '(hydra-org-agenda-cycle-files/body :which-key "Cycle through all the org agenda files" ))
+
+
+
+
+
 #+end_src
 * Hydra
 
 For quick repetitive actions
 
 #+begin_src emacs-lisp :tangle yes
-    (use-package hydra
-      :straight t)
+      (use-package hydra
+	:straight t)
 
-    (defhydra hydra-text-scale (:timeout 4)
-      "scale text"
-      ("s" text-scale-increase "in")
-      ("t" text-scale-decrease "out")
-      ("r" text-scale-set "Equalize")
+
+    (defhydra hydra-org-agenda-cycle-files (:timeout 4)
+      "Cycle through all org agenda cycles"
+      ("c" org-cycle-agenda-files "next")
       ("k" nil "finished" :exit t))
 
 
-    (defhydra hydra-shape-screen (:timeout 4)
+      (defhydra hydra-text-scale (:timeout 4)
+	"scale text"
+	("s" text-scale-increase "in")
+	("t" text-scale-decrease "out")
+	("r" text-scale-set "Equalize")
+	("k" nil "finished" :exit t))
 
-;;  <"h" shrink-window-horizontally "out">
-      "adjust window"
-      ("r" enlarge-window-horizontally "in")
-      ("h" shrink-window-horizontally "out")
-      ("t" enlarge-window "up")
-      ("s" (enlarge-window -) "down")
-      ("d" balance-windows "equalize")
-      ("k" nil "finished" :exit t))
 
-    ;; enlarge-window-horizontallyST
+      (defhydra hydra-shape-screen (:timeout 4)
 
-    (mk/leader-keys
-      "ts" '(hydra-text-scale/body :which-key "scale-text")
-      "tw" '(hydra-shape-screen/body :which-key "size-screen"))
+  ;;  <"h" shrink-window-horizontally "out">
+	"adjust window"
+	("r" enlarge-window-horizontally "in")
+	("h" shrink-window-horizontally "out")
+	("t" enlarge-window "up")
+	("s" (enlarge-window -) "down")
+	("d" balance-windows "equalize")
+	("k" nil "finished" :exit t))
 
-    ;; todo add modifiers so like sftp or ssh
+      ;; enlarge-window-horizontallyST
 
-      ;; "ot" '(mk/ssh-team :which-key "terminal for team vm")
-      ;; "oi" '(mk/ssh-individual :which-key "terminal for indiviudal vm")
-      ;; "on" '(multi-vterm :which-key "create a new vterm")
-;;      ("os" (enlarge-window -1) "down"))
+      (mk/leader-keys
+	"ts" '(hydra-text-scale/body :which-key "scale-text")
+	"tw" '(hydra-shape-screen/body :which-key "size-screen"))
+
+      ;; todo add modifiers so like sftp or ssh
+
+	;; "ot" '(mk/ssh-team :which-key "terminal for team vm")
+	;; "oi" '(mk/ssh-individual :which-key "terminal for indiviudal vm")
+	;; "on" '(multi-vterm :which-key "create a new vterm")
+  ;;      ("os" (enlarge-window -1) "down"))
 #+end_src
 * Doom modeline
 
@@ -1254,55 +1314,64 @@ This is font size
 - =(lsp-register-custom-settings)= Sets those settings
 - =(lsp-describe-session)= shows the capabilities of the current session. See the troubleshooting section of the lsp-mode README.
 #+begin_src emacs-lisp :tangle yes
-		(use-package lsp-mode
-		  :straight t
-		  :commands (lsp lsp-deferred)
-		  :custom
-		  ;; what to use when checking on-save. "check" is default, I prefer clippy
-		  (lsp-rust-analyzer-cargo-watch-command "clippy")
-		  (lsp-eldoc-render-all t)
-		  (lsp-idle-delay 0.6)
-		  ;; enable / disable the hints as you prefer:
-		  (lsp-rust-analyzer-server-display-inlay-hints t)
-		  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-		  (lsp-rust-analyzer-display-chaining-hints t)
-		  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-		  (lsp-rust-analyzer-display-closure-return-type-hints t)
-		  (lsp-rust-analyzer-display-parameter-hints nil)
-		  (lsp-rust-analyzer-display-reborrow-hints nil)
-		  :config
-		  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-		  (setq lsp-keymap-prefix "C-M-s-e x")
-		  :hook
-	    (python-mode . lsp))
-		  ;; optionally
-		  (use-package lsp-ui
-		    :hook (lsp-mode . lsp-ui-mode)
-		    :commands lsp-ui-mode
-		  :custom
-		  (lsp-ui-peek-always-show t)
-		  (lsp-ui-sideline-show-hover t)
-		  (lsp-ui-doc-enable t))
-    (use-package lsp-treemacs
-  :after lsp)
+		    (use-package lsp-mode
+		      :straight t
+		      :commands (lsp lsp-deferred)
+		      :custom
+		      ;; what to use when checking on-save. "check" is default, I prefer clippy
+		      (lsp-rust-analyzer-cargo-watch-command "clippy")
+		      (lsp-eldoc-render-all t)
+		      (lsp-idle-delay 0.6)
+		      ;; enable / disable the hints as you prefer:
+		      (lsp-rust-analyzer-server-display-inlay-hints t)
+		      (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+		      (lsp-rust-analyzer-display-chaining-hints t)
+		      (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+		      (lsp-rust-analyzer-display-closure-return-type-hints t)
+		      (lsp-rust-analyzer-display-parameter-hints nil)
+		      (lsp-rust-analyzer-display-reborrow-hints nil)
+		      :config
+		      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+		      (setq lsp-keymap-prefix "C-M-s-e x")
+		      :hook
+		(python-mode . lsp))
+		      ;; optionally
+		      (use-package lsp-ui
+			:hook (lsp-mode . lsp-ui-mode)
+			:commands lsp-ui-mode
+		      :custom
+		      (lsp-ui-peek-always-show t)
+		      (lsp-ui-sideline-show-hover t)
+		      (lsp-ui-doc-enable t))
+	(use-package lsp-treemacs
+      :after lsp)
+  (defun lsp-go-install-save-hooks ()
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t))
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
-    ;;   (define-key lsp-ui-mode-map [remap xref-next-line] #'lsp-ui-peek--select-next)
+  ;; Start LSP Mode and YASnippet mode
+  (add-hook 'go-mode-hook #'lsp-deferred)
+  (add-hook 'go-mode-hook #'yas-minor-mode)
 
-    ;; (define-key lsp-ui-mode-map (kbd "C-j") #'xref-next-line)
+    (add-hook 'go-mode-hook #'lsp)
+	;;   (define-key lsp-ui-mode-map [remap xref-next-line] #'lsp-ui-peek--select-next)
 
-		  ;; if you are helm user
-		  ;; if you are ivy user
+	;; (define-key lsp-ui-mode-map (kbd "C-j") #'xref-next-line)
 
-		  ;; optionally if you want to use debugger
+		      ;; if you are helm user
+		      ;; if you are ivy user
 
-		  ;; (use-package dap-mode)
+		      ;; optionally if you want to use debugger
 
-		  ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+		      ;; (use-package dap-mode)
 
-		  ;; optional if you want which-key integration
-		  ;; (use-package which-key
-		  ;;     :config
-		  ;;     (which-key-mode))
+		      ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
+		      ;; optional if you want which-key integration
+		      ;; (use-package which-key
+		      ;;     :config
+		      ;;     (which-key-mode))
 
 
 #+end_src
@@ -1539,8 +1608,20 @@ Mandaroy
   
 #+end_src
 
-* Rustic
+* Go
 
+#+begin_src emacs-lisp :tangle yes
+      (use-package go-mode
+    :straight t)
+
+
+(add-hook 'before-save-hook 'gofmt-before-save)
+
+    (add-hook 'go-mode-hook (lambda ()
+      (setq tab-width 4)))
+(setenv "PATH" (concat (getenv "PATH") ":/usr/bin/go"))
+#+end_src
+* Rustic
 
 ** TODO [[https://rust-analyzer.github.io/manual.html#assists-code-actions][code actions to take a look at some point]]
 
@@ -1594,11 +1675,11 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
   (use-package yasnippet
     :straight t
     :config
-    (yas-reload-all)
     (add-hook 'prog-mode-hook 'yas-minor-mode)
     (add-hook 'text-mode-hook 'yas-minor-mode)
     (yas-global-mode 1))
-  
+
+
 #+end_src
 
 ** Here

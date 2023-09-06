@@ -22,35 +22,43 @@
 #+end_src
 * Mode line at top
 
+hide the mode line at the bottom and put the mode line at the top
+
 #+begin_src emacs-lisp :tangle yes
-  (setq-default header-line-format mode-line-format)
+    (setq-default header-line-format nil)
 
-(defvar-local hidden-mode-line-mode nil)
+  (defvar-local hidden-mode-line-mode nil)
 
-(define-minor-mode hidden-mode-line-mode
-  "Minor mode to hide the mode-line in the current buffer."
-  :init-value nil
-  :global t
-  :variable hidden-mode-line-mode
-  :group 'editing-basics
-  (if hidden-mode-line-mode
-      (setq hide-mode-line mode-line-format
-            mode-line-format nil)
-    (setq mode-line-format hide-mode-line
-          hide-mode-line nil))
-  (force-mode-line-update)
-  ;; Apparently force-mode-line-update is not always enough to
-  ;; redisplay the mode-line
-  (redraw-display)
-  (when (and (called-interactively-p 'interactive)
-             hidden-mode-line-mode)
-    (run-with-idle-timer
-     0 nil 'message
-     (concat "Hidden Mode Line Mode enabled.  "
-             "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
+  (define-minor-mode hidden-mode-line-mode
+    "Minor mode to hide the mode-line in the current buffer."
+    :init-value nil
+    :global t
+    :variable hidden-mode-line-mode
+    :group 'editing-basics
+    (if hidden-mode-line-mode
+	(setq hide-mode-line mode-line-format
+	      mode-line-format nil)
+      (setq mode-line-format hide-mode-line
+	    hide-mode-line nil))
+    (force-mode-line-update)
+    ;; Apparently force-mode-line-update is not always enough to
+    ;; redisplay the mode-line
+    (redraw-display)
+    (when (and (called-interactively-p 'interactive)
+	       hidden-mode-line-mode)
+      (run-with-idle-timer
+       0 nil 'message
+       (concat "Hidden Mode Line Mode enabled.  "
+	       "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
 
-;; If you want to hide the mode-line in every buffer by default
-;; (add-hook 'after-change-major-mode-hook 'hidden-mode-line-mode)
+
+  (define-globalized-minor-mode global-hidden-modeline hidden-mode-line-mode
+  (lambda () (hidden-mode-line-mode 1)))
+
+(global-hidden-modeline 0)
+
+  ;; If you want to hide the mode-line in every buffer by default
+  ;; (add-hook 'after-change-major-mode-hook 'hidden-mode-line-mode)
 
 
 #+end_src
@@ -159,33 +167,61 @@ Supress native comp warnings
 Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html][org-agenda-method]] 
 #+begin_src emacs-lisp :tangle yes
 
-     (use-package org :straight (:type built-in)
-      :bind ((:map org-agenda-key-map
+	       (use-package org :straight (:type built-in)
+		       :config 
+	      (setq org-agenda-include-diary t)
+			(setq org-agenda-files '("/home/malcolm/Sync/agenda"))
+			(setq org-directory "/home/malcolm/Sync")
 
-		      ("k" . org-agenda-previous-item)
-		      ("j" . org-agenda-next-item)
+			(setq org-default-notes-files (concat org-directory "/notes.org"))
+	    ; C-c C-x C-c to see the coloumn
+	    (setq org-columns-default-format "%40ITEM(Task) %17Effort(Estimated Effort){:} %CLOCKSUM")
+	;; This is good as you can add custom filters to the agenda this is so much better than manually typing in each one
+		;; '(("x" agenda)
+		;;   ("y" agenda*)
+		;;   ("w" todo "WAITING")
+		;;   ("W" todo-tree "WAITING")
+		;;   ("u" tags "+boss-urgent")
+		;;   ("v" tags-todo "+boss-urgent")
+		;;   ("U" tags-tree "+boss-urgent")
+		;;   ("f" occur-tree "\\<FIXME\\>")
+		;;   ("h" . "HOME+Name tags searches") ;description for "h" prefix
+		;;   ("hl" tags "+home+Lisa")
+		;;   ("hp" tags "+home+Peter")
+	  ; My actual ones
+	  (setq org-agenda-custom-commands 
+	'(("j" tags "+personal_project")
+	("g" tags "computer_graphics|programming_languages|reserach|black_class")
+	("v" tags-todo "computer_graphics|programming_languages|reserach|black_class")
+	("hh" tags "=0:30")
+		  ("hp" tags "+home+Peter")
+		  ("hk" tags "+home+Kim")))
 
-		      ("L" . org-agenda-do-date-later)
-		      ("H" . org-agenda-do-date-later))
-	      (:map org-mode-map
-	       ("H" . 'org-timestamp-down-day)
-	       ("I" . 'org-timestamp-up-day)))
+	    (setq org-tag-alist '((:startgroup . nil)
+				  ("computer_graphics" . ?g) ("research" . ?r)
+				  ("programming_languages" . ?p)
+				  ("black_class" . ?b)
+				  (:endgroup . nil)
+				  ("mtss" . ?m) ("career" .?l) ("") ("cooking" . ?c) ("school" . ?s) ("personal_project" . ?j)))
+	    (setq org-fast-tag-selection-single-key t)
+  (setq org-capture-templates
+	'(("t" "Todo" entry (file+headline "~/Sync/test.org" "Tasks")
+	   "* TODO %?\n  %i\n  %a")
+	  ("a" "Applications" entry (file "~/Sync/internships/applications.org")
+	   "* TODO %^{Company}\nSCHEDULED: %^t DEADLINE: %^t\n")
+	  ("s" "School" entry (file "~/Sync/agenda/Todo.org")
+	   "* %^{Assignment} %?\nDue Date%^t\n %^g\n%^{effort}p")
+	  ("i" "Interview Question" entry (file "~/Sync/crack-coding/code-logs.org") "* %^{Question Title} %^g\n- First Attempt %U\n- [[%^{Question Link}][Link]]\n%^{difficulty}p%?" :clock-in t :clock-keep t)))
+
+	    (setq org-log-done 'time))
 
 
-	     :config 
-    (setq org-agenda-include-diary t)
-	      (setq org-agenda-files '("~/Sync/agenda/"))
 
-  (setq org-tag-alist '((:startgroup . nil)
-			("coputer_graphics" . ?c) ("research" . ?r)
-			("programming_languages" . ?p)
-			("black_class" . ?b)
-			(:endgroup . nil)
-			("school" . ?s) ("personal_project" . ?j)))
-  (setq org-log-done 'time))
-
-
-
+      ;; This is dope
+      (define-key minibuffer-local-map (kbd "<f6>") 'help-for-help)
+    (let ((map minibuffer-local-map))
+      (define-key map (kbd "C-n")   'next-history-element)
+      (define-key map  (kbd "C-p")   'previous-history-element))
 
 #+end_src
 
@@ -505,7 +541,7 @@ evil mode
      '(:ignore t :which-key "toggles")
   ;; Single key triggers are for the most used commands like find-file
      "."  '(find-file  :which-key "find file")
-     ","  '(switch-to-buffer :which-key "switch buffers")
+     ","  '(switch-to-buffer :which-key "frog jump buffer")
      ";"  '(org-agenda :which-key "org-agenda")
      "tt" '(load-theme :which-key "choose theme"))
 
@@ -574,6 +610,7 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "s" '(:ignore t :which-key "lsp commands" )
 	  "sd" '(lsp-describe-session :which-key "describe all lsp sessions" )
 	  "sr" '(lsp-find-references :which-key "lsp find references" )
+	  "sk" '(lsp-workspace-folders-remove :which-key "kill the lsp for the current workspace" )
 	  "sx" '(lsp-ui-peek-find-references :which-key "referencs at point" )
 	  "st" '(:ignore t :which-key "lsp treemacs")
 	  "sts" '(lsp-treemacs-symbols :which-key "treemacs symobls for file" )
@@ -636,6 +673,10 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "af" '(org-agenda-file-to-front :which-key "Add file to the org agenda tracker" )
 	  "ar" '(org-remove-file :which-key "Remove file from the org agenda tracker" )
 	  "at" '(org-set-tags-command :which-key "Add a tag to the org heading" )
+	  "ai" '(org-clock-in-last :which-key "Clock in on the last task" )
+	  "ao" '(org-clock-out :which-key "Clock out of the current task" )
+	  "ae" '(org-capture :which-key "org capture" )
+	  "al" '(org-store-link :which-key "org store link" )
 	  "ac" '(hydra-org-agenda-cycle-files/body :which-key "Cycle through all the org agenda files" ))
 
 
@@ -670,12 +711,12 @@ For quick repetitive actions
 
   ;;  <"h" shrink-window-horizontally "out">
 	"adjust window"
-	("r" enlarge-window-horizontally "in")
+	("l" enlarge-window-horizontally "in")
 	("h" shrink-window-horizontally "out")
-	("t" enlarge-window "up")
-	("s" (enlarge-window -) "down")
+	("k" enlarge-window "up")
+	("j" (enlarge-window -1) "down")
 	("d" balance-windows "equalize")
-	("k" nil "finished" :exit t))
+	("e" nil "finished" :exit t))
 
       ;; enlarge-window-horizontallyST
 
@@ -1025,7 +1066,19 @@ add more hooks for relative lines, I started moving away from linenumbers and us
     (add-hook 'prog-mode-hook 'linum-relative-mode))
 
 #+end_src
-* TODO Avy
+* Frog jumper buffer 
+[[https://github.com/tumashu/posframe][pos frame ]]is a cool package I should use at some point 
+
+This is a cool package to makes buffer jumping fairly straight forward
+#+begin_src emacs-lisp :tangle yes
+      (use-package frog-jump-buffer :straight t
+  :config
+  (setq frog-jump-buffer-include-current-buffer nil)
+  (setq frog-jump-buffer-default-filter 'frog-jump-buffer-filter-file-buffers)
+
+    (setq frog-jump-buffer-use-all-the-icons-ivy t))
+
+#+end_src
 * Reload without restarting
 #+begin_src emacs-lisp :tangle yes
 (defun config-reload ()
@@ -1265,7 +1318,7 @@ This is font size
 #+begin_src emacs-lisp :tangle yes
 
     (setq org-todo-keywords
-        '((sequence "TODO" "WAITING" "INACTIVE" "|" "DONE")
+        '((sequence "TODO" "REVISIT" "SOLID" "SHAKY" "|" "DONE")
           (sequence "BUG(b)" "FEATURE(r)" "KNOW BUG(k)" "|" "FIXED(f)")))
 
 #+end_src
@@ -1782,3 +1835,14 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
   ;; (setq pyvenv-workon "emacs")  ; Default venv
   (pyvenv-tracking-mode 1))
 #+end_src
+
+*** Ada
+
+#+begin_src emacs-lisp :tangle yes
+    (use-package ada-mode
+  :straight t)
+
+
+#+end_src
+
+

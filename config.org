@@ -191,8 +191,8 @@ Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life
 	  ; My actual ones
 	  (setq org-agenda-custom-commands 
 	'(("j" tags "+personal_project")
-	("g" tags "computer_graphics|programming_languages|reserach|black_class")
-	("v" tags-todo "computer_graphics|programming_languages|reserach|black_class")
+	("g" tags "computer_graphics|programming_languages|research|black_class")
+	("v" tags-todo "computer_graphics|programming_languages|research|black_class")
 	("hh" tags "=0:30")
 		  ("hp" tags "+home+Peter")
 		  ("hk" tags "+home+Kim")))
@@ -210,7 +210,7 @@ Code is pulled from [[https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life
 	  ("a" "Applications" entry (file "~/Sync/internships/applications.org")
 	   "* TODO %^{Company}\nSCHEDULED: %^t DEADLINE: %^t\n")
 	  ("s" "School" entry (file "~/Sync/agenda/Todo.org")
-	   "* %^{Assignment} %?\nDue Date%^t\n %^g\n%^{effort}p")
+	   "* %^{Assignment} %^g%?\nDEADLINE: %^T\n%^{effort}p")
 	  ("i" "Interview Question" entry (file "~/Sync/crack-coding/code-logs.org") "* %^{Question Title} %^g\n- First Attempt %U\n- [[%^{Question Link}][Link]]\n%^{difficulty}p%?" :clock-in t :clock-keep t)))
 
 	    (setq org-log-done 'time))
@@ -578,7 +578,8 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "/e" '(make-empty-file :which-key "empty file")
 	  "/i" '(insert-file :which-key "inser file into buffer")
 	  "/s" '(tramp-server :which-key "tramp server")
-	  "/o" '(rename-file :which-key "rename file"))
+	  "/o" '(rename-file :which-key "rename file")
+	  "/." '(jump-to-register :which-key "Jump to register" ))
       ;; Expand this further ^^
 	(mk/leader-keys
 	  "n" '(:ignore t :which-key "window management" )
@@ -617,8 +618,7 @@ Current philoshy is that the core bindings I use every day in emacs are all chor
 	  "stp" '(treemacs :which-key "treemacs for project" ))
 
 	(mk/leader-keys
-	  "r" '(:ignore t :which-key "Registers" )
-	  "rj" '(jump-to-register :which-key "Jump to register" ))
+	  "r" '(:ignore t :which-key "Registers" ))
 
 
 	(mk/leader-keys
@@ -1551,9 +1551,19 @@ This is font size
 	(interactive)
 	(vterm-ssh "sysadmin@csc415-team12.hpc.tcnj.edu"))
 
-    (defun mk/ssh-team()
+    (defun mk/ssh-nixos()
       (interactive)
-      (let ((default-directory "/ssh:sysadmin@csc415-team12.hpc.tcnj.edu:"))
+      (let ((default-directory "/ssh:malcolm@192.168.1.216:"))
+	(multi-vterm)))
+
+    (defun mk/ssh-big-black-brick()
+      (interactive)
+      (let ((default-directory "/ssh:malcolm@bigblackbrick:"))
+	(multi-vterm)))
+
+    (defun mk/ssh-pi-black()
+      (interactive)
+      (let ((default-directory "/ssh:pi@192.168.1.214:"))
 	(multi-vterm)))
 
     (defun mk/ssh-individual()

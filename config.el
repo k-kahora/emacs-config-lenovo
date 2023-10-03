@@ -140,8 +140,13 @@ FILTER is function that runs after the process is finished, its args should be
 (setq org-capture-templates
       '(("t" "Todo" entry (file+headline "~/Sync/test.org" "Tasks")
 	 "* TODO %?\n  %i\n  %a")
+;; I need applications to inclued the following
+;; 1.) Company name
+;; 2.) Date and time app started
+;; 3.) Add a TODO item to my calander that makes me follow up in two weeks
+
 	("a" "Applications" entry (file "~/Sync/internships/applications.org")
-	 "* TODO %^{Company}\nSCHEDULED: %^t DEADLINE: %^t\n")
+	 "* TODO %^{Company}\nSCHEDULED: %^t DEADLINE: %^t\nJob Title: %^{Job Title}" :clock-in t :clock-keep t)
 	("s" "School" entry (file "~/Sync/agenda/Todo.org")
 	 "* %^{Assignment} %^g%?\nDEADLINE: %^T\n%^{effort}p")
 	("i" "Interview Question" entry (file "~/Sync/crack-coding/code-logs.org") "* %^{Question Title} %^g\n- First Attempt %U\n- [[%^{Question Link}][Link]]\n%^{difficulty}p%?" :clock-in t :clock-keep t)))
@@ -409,6 +414,7 @@ FILTER is function that runs after the process is finished, its args should be
 	"ai" '(org-clock-in-last :which-key "Clock in on the last task" )
 	"ao" '(org-clock-out :which-key "Clock out of the current task" )
 	"ae" '(org-capture :which-key "org capture" )
+	"au" '(org-clock-update-time-maybe :which-key "Update clock in time" )
 	"al" '(org-store-link :which-key "org store link" )
 	"ac" '(hydra-org-agenda-cycle-files/body :which-key "Cycle through all the org agenda files" ))
 
@@ -783,7 +789,7 @@ FILTER is function that runs after the process is finished, its args should be
   (evil-collection-ripgrep-setup))
 
 (setq org-todo-keywords
-    '((sequence "TODO" "REVISIT" "SOLID" "SHAKY" "|" "DONE")
+    '((sequence "TODO" "REVISIT" "SHAKY" "|" "DONE" "REVISITED" "SOLID")
       (sequence "BUG(b)" "FEATURE(r)" "KNOW BUG(k)" "|" "FIXED(f)")))
 
 (use-package org-roam

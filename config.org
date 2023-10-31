@@ -1873,3 +1873,49 @@ This package is goated! Emacs struggles to retrive the proper PATH from bashrc t
                '("ssh"
                  (tramp-parse-sconfig "~/.authinfo.gpg"))))
 #+end_src
+
+* Tree-sitter
+#+begin_src emacs-lisp :tangle yes
+
+    (use-package tree-sitter-langs
+      :straight t)
+    (use-package tree-sitter
+      :straight t)
+#+end_src
+
+* Ocaml
+#+begin_src emacs-lisp :tangle yes
+
+	;; Major mode for editing Dune project files
+	(use-package dune
+	  :ensure t)
+
+	;; Merlin provides advanced IDE features
+	(use-package merlin
+	  :straight t
+	  :config
+	  (add-hook 'tuareg-mode-hook #'merlin-mode)
+	  (add-hook 'merlin-mode-hook #'company-mode)
+	  ;; we're using flycheck instead
+	  (setq merlin-error-after-save nil))
+
+	(use-package merlin-eldoc
+	  :straight t
+	  :hook ((tuareg-mode) . merlin-eldoc-setup))
+
+	;; This uses Merlin internally
+	(use-package flycheck-ocaml
+	  :straight t
+	  :config
+	  (flycheck-ocaml-setup))
+
+	  (add-hook 'tuareg-mode-hook #'merlin-mode)
+	  (add-hook 'caml-mode-hook #'merlin-mode)
+
+	(use-package utop
+	  :straight t
+	  :config
+        (add-hook 'tuareg-mode-hook #'utop-minor-mode))
+#+end_src
+
+

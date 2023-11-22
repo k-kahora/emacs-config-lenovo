@@ -275,8 +275,8 @@ FILTER is function that runs after the process is finished, its args should be
 ;; Figure out a way to get this to work in insert mode
    (general-create-definer mk/leader-keys
      :keymaps '(normal visual emacs insert)
- :prefix "C-M-s-e"
- :global-prefix "C-M-s-e"))
+ :prefix "C-SPC"
+ :global-prefix "C-SPC"))
 
 
  ;;  (general-unbind '(insert normal visual emacs)
@@ -828,7 +828,7 @@ FILTER is function that runs after the process is finished, its args should be
 		    (lsp-rust-analyzer-display-reborrow-hints nil)
 		    :config
 		    (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-		    (setq lsp-keymap-prefix "C-M-s-e x")
+		    (setq lsp-keymap-prefix "C-SPC x")
 		    :hook
 	      (python-mode . lsp))
 		    ;; optionally
@@ -1080,3 +1080,39 @@ FILTER is function that runs after the process is finished, its args should be
 
 (use-package ada-mode
 :straight t)
+
+(use-package tree-sitter-langs
+  :straight t)
+(use-package tree-sitter
+  :straight t)
+
+;; Major mode for editing Dune project files
+(use-package dune
+  :ensure t)
+
+;; Merlin provides advanced IDE features
+(use-package merlin
+  :straight t
+  :config
+  (add-hook 'tuareg-mode-hook #'merlin-mode)
+  (add-hook 'merlin-mode-hook #'company-mode)
+  ;; we're using flycheck instead
+  (setq merlin-error-after-save nil))
+
+(use-package merlin-eldoc
+  :straight t
+  :hook ((tuareg-mode) . merlin-eldoc-setup))
+
+;; This uses Merlin internally
+(use-package flycheck-ocaml
+  :straight t
+  :config
+  (flycheck-ocaml-setup))
+
+  (add-hook 'tuareg-mode-hook #'merlin-mode)
+  (add-hook 'caml-mode-hook #'merlin-mode)
+
+(use-package utop
+  :straight t
+  :config
+(add-hook 'tuareg-mode-hook #'utop-minor-mode))

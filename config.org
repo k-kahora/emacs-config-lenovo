@@ -473,6 +473,9 @@ evil mode
       (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
       (evil-global-set-key 'motion "j" 'evil-next-visual-line)
       (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  ;; TODO make hitting escape while in normal mode exit the buffer
+  ;; Had to disable the option below because C-n and C-p did not work with it enabled
+       (setq evil-want-minibuffer nil)
       )
 
     (use-package evil-collection
@@ -534,8 +537,8 @@ evil mode
   ;; Figure out a way to get this to work in insert mode
      (general-create-definer mk/leader-keys
        :keymaps '(normal visual emacs insert)
-   :prefix "C-M-s-e"
-   :global-prefix "C-M-s-e"))
+   :prefix "C-SPC"
+   :global-prefix "C-SPC"))
 
 
    ;;  (general-unbind '(insert normal visual emacs)
@@ -1391,7 +1394,7 @@ This is font size
 		      (lsp-rust-analyzer-display-reborrow-hints nil)
 		      :config
 		      (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-		      (setq lsp-keymap-prefix "C-M-s-e x")
+		      (setq lsp-keymap-prefix "C-SPC x")
 		      :hook
 		(python-mode . lsp))
 		      ;; optionally
